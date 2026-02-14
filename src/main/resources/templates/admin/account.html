@@ -1,0 +1,30 @@
+<div class="card shadow-sm">
+    <div class="card-header bg-info text-white fw-bold">QUẢN LÝ TÀI KHOẢN</div>
+    <div class="card-body">
+        <div th:if="${message}" class="alert alert-success">[[${message}]]</div>
+        <table class="table table-bordered">
+            <thead class="table-light">
+                <tr><th>Username</th><th>Họ tên</th><th>Email</th><th>Vai trò</th><th>Cấp quyền</th></tr>
+            </thead>
+            <tbody>
+                <tr th:each="acc : ${items}">
+                    <td>[[${acc.username}]]</td>
+                    <td>[[${acc.fullname}]]</td>
+                    <td>[[${acc.email}]]</td>
+                    <td>
+                        <span th:if="${acc.admin}" class="badge bg-danger">Admin</span>
+                        <span th:unless="${acc.admin}" class="badge bg-secondary">User</span>
+                    </td>
+                    <td>
+                        <form action="/admin/account/update-role" method="post">
+                            <input type="hidden" name="username" th:value="${acc.username}">
+                            <input type="hidden" name="admin" th:value="${!acc.admin}">
+                            <button th:if="${acc.admin}" class="btn btn-sm btn-outline-secondary">Hủy Admin</button>
+                            <button th:unless="${acc.admin}" class="btn btn-sm btn-outline-danger">Cấp Admin</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Sản phẩm đã mua</title>
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="card shadow">
+            <div class="card-header bg-dark text-white">
+                <h4 class="mb-0"><i class="fas fa-box-open"></i> SẢN PHẨM BẠN ĐÃ MUA</h4>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light text-center">
+                        <tr>
+                            <th>Hình ảnh</th>
+                            <th>Tên sản phẩm</th>
+                            <th>Ngày mua</th>
+                            <th>Giá mua</th>
+                            <th>Số lượng</th>
+                            <th>Đơn hàng</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="detail : ${details}">
+                            <td class="text-center">
+                                <img th:src="@{|/assets/images/${detail.product.image}|}" 
+                                     style="width: 50px; height: 50px; object-fit: cover;" class="rounded border">
+                            </td>
+                            <td>
+                                <strong th:text="${detail.product.name}"></strong>
+                            </td>
+                            <td class="text-center" th:text="${#dates.format(detail.order.createDate, 'dd-MM-yyyy')}"></td>
+                            <td class="text-right text-danger" 
+                                th:text="${#numbers.formatDecimal(detail.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
+                            <td class="text-center" th:text="${detail.quantity}">1</td>
+                            <td class="text-center">
+                                <a th:href="@{|/order/detail/${detail.order.id}|}" class="badge badge-info p-2">
+                                    #<span th:text="${detail.order.id}"></span>
+                                </a>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(details)}">
+                            <td colspan="6" class="text-center py-5">
+                                <p class="text-muted">Bạn chưa mua bất kỳ sản phẩm nào.</p>
+                                <a th:href="@{/product/list}" class="btn btn-primary">Mua sắm ngay</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

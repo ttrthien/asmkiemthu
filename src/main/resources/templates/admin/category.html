@@ -1,0 +1,36 @@
+<div class="card shadow-sm">
+    <div class="card-header bg-primary text-white fw-bold">QUẢN LÝ DANH MỤC</div>
+    <div class="card-body">
+        <div th:if="${message}" class="alert alert-warning">[[${message}]]</div>
+
+        <form th:action="@{/admin/category/index}" method="post" th:object="${item}">
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label>Mã loại</label>
+                    <input th:field="*{id}" class="form-control" placeholder="" required 
+                           th:readonly="${item.name != null}"> </div>
+                <div class="col-md-8">
+                    <label>Tên loại</label>
+                    <input th:field="*{name}" class="form-control" placeholder="" required>
+                </div>
+            </div>
+            <div class="mb-3">
+                <button th:formaction="@{/admin/category/create}" class="btn btn-success">Thêm mới</button>
+                <button th:formaction="@{/admin/category/update}" class="btn btn-warning">Cập nhật</button>
+                <a th:href="@{|/admin/category/delete/*{id}|}" class="btn btn-danger">Xóa</a>
+                <a href="/admin/category/index" class="btn btn-secondary">Làm mới</a>
+            </div>
+        </form>
+        <hr>
+        <table class="table table-bordered table-hover">
+            <thead class="table-light"><tr><th>Mã</th><th>Tên</th><th>Action</th></tr></thead>
+            <tbody>
+                <tr th:each="c : ${items}">
+                    <td>[[${c.id}]]</td>
+                    <td>[[${c.name}]]</td>
+                    <td><a th:href="@{|/admin/category/edit/${c.id}|}" class="btn btn-sm btn-info">Sửa</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

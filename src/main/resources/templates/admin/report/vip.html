@@ -1,0 +1,19 @@
+<div class="card shadow-sm">
+    <div class="card-header bg-warning text-dark fw-bold">TOP 10 KHÁCH HÀNG VIP</div>
+    <div class="card-body">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Họ và tên</th> <th>Tổng chi tiêu</th> <th>Số đơn hàng</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="item : ${items}">
+                    <td th:text="${item.group}"></td>
+                    <td class="fw-bold text-primary">[[${#numbers.formatDecimal(item.sum, 0, 'COMMA', 0, 'POINT')}]] ₫</td>
+                    <td th:text="${item.count}"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,19 @@
+<div class="card shadow-sm">
+    <div class="card-header bg-success text-white fw-bold">DOANH THU THEO LOẠI HÀNG</div>
+    <div class="card-body">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Loại sản phẩm</th> <th>Tổng doanh thu</th> <th>Tổng số lượng bán</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="item : ${items}">
+                    <td th:text="${item.group}"></td>
+                    <td class="fw-bold text-danger">[[${#numbers.formatDecimal(item.sum, 0, 'COMMA', 0, 'POINT')}]] ₫</td>
+                    <td th:text="${item.count}"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

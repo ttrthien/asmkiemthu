@@ -1,0 +1,28 @@
+<div class="card">
+    <div class="card-header fw-bold">CHI TIẾT SẢN PHẨM</div>
+    <div class="card-body">
+        <div class="row" th:object="${item}">
+            <div class="col-md-5 text-center">
+                <img th:src="@{|/images/*{image}|}" class="img-fluid rounded border" alt="Product Image">
+            </div>
+            <div class="col-md-7">
+                <h3 class="text-primary">[[*{name}]]</h3>
+                <h4 class="text-danger fw-bold mt-3">[[${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')}]] VNĐ</h4>
+                
+                <div class="my-3">
+                    <strong>Ngày đăng:</strong> [[*{createDate}]] <br>
+                    <strong>Loại hàng:</strong> [[*{category.name}]]
+                </div>
+                
+                <hr>
+                
+                <div class="d-flex gap-2">
+                    <a th:href="@{|/cart/add/*{id}|}" class="btn btn-success btn-lg">
+                        <i class="bi bi-cart-check"></i> ĐẶT MUA NGAY
+                    </a>
+                    <button class="btn btn-outline-secondary btn-lg"><i class="bi bi-heart"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

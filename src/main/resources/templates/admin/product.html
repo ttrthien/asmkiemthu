@@ -1,0 +1,107 @@
+<style>
+    .sticky-form { position: -webkit-sticky; position: sticky; top: 85px; z-index: 100; max-width: 100%; }
+    .sticky-form .card-header { position: sticky; top: 0; z-index: 101; border-radius: 0.35rem 0.35rem 0 0; }
+    .compact-form .form-label { font-size: 0.85rem; margin-bottom: 2px; }
+    .compact-form .form-control, .compact-form .form-select { padding: 0.3rem 0.6rem; font-size: 0.9rem; }
+    .category-header { background: linear-gradient(to right, #e9ecef, #ffffff); border-left: 4px solid #0d6efd; padding: 8px 12px; margin-top: 10px; font-weight: bold; font-size: 0.9rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+</style>
+
+<div class="row g-3">
+    <div class="col-md-3">
+        <div th:if="${message != null}" class="alert alert-success alert-dismissible fade show py-2 mb-2 shadow-sm" role="alert" id="systemAlert">
+            <small><i class="bi bi-check-circle-fill me-1"></i> [[${message}]]</small>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" style="padding: 0.75rem;"></button>
+            <script>
+                setTimeout(() => {
+                    var alertNode = document.getElementById('systemAlert');
+                    if(alertNode) { new bootstrap.Alert(alertNode).close(); }
+                }, 3000);
+            </script>
+        </div>
+
+        <div class="card shadow-sm sticky-form compact-form border-0">
+            <div class="card-header bg-primary text-white py-2 shadow-sm">
+                <h6 class="mb-0 fw-bold"><i class="bi bi-pencil-square me-1"></i> CẬP NHẬT SẢN PHẨM</h6>
+            </div>
+            <div class="card-body p-3">
+                <form th:action="@{/admin/product/save}" method="post" enctype="multipart/form-data" th:object="${item}">
+                    <input type="hidden" th:field="*{id}">
+                    <div class="mb-2">
+                        <label class="form-label fw-bold">Tên giày</label> 
+                        <input th:field="*{name}" class="form-control" required placeholder="Tên sản phẩm...">
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label fw-bold">Giá (VNĐ)</label> 
+                        <input th:field="*{price}" type="number" step="any" class="form-control" required>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label fw-bold">Ảnh sản phẩm</label> 
+                        <input type="file" name="photo_file" class="form-control"> 
+                        <input type="hidden" th:field="*{image}">
+                        <div class="mt-2 text-center" th:if="*{image != null}">
+                            <img th:src="@{|/images/*{image}|}" class="rounded border shadow-sm" style="max-height: 60px;">
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label fw-bold">Thương hiệu</label> 
+                        <select th:field="*{category.id}" class="form-select">
+                            <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.name}"></option>
+                        </select>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" th:field="*{available}" class="form-check-input" id="checkAvail"> 
+                        <label class="form-check-label small" for="checkAvail">Đang kinh doanh</label>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary btn-sm fw-bold shadow-sm">LƯU THAY ĐỔI</button>
+                        <a th:href="@{/admin/product/index}" class="btn btn-light btn-sm text-secondary border">Làm mới</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-9">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-2">
+                <h6 class="mb-0 fw-bold"><i class="bi bi-table"></i> DANH SÁCH SẢN PHẨM</h6>
+                <span class="badge bg-warning text-dark" th:text="${items.size() + ' sản phẩm'}"></span>
+            </div>
+            <div class="card-body p-0">
+                <div th:each="cate, state : ${categories}">
+                    <div class="category-header text-uppercase" data-bs-toggle="collapse" th:data-bs-target="'#collapse' + ${cate.id}">
+                        <span><i class="bi bi-tag-fill me-1"></i> Hãng: [[${cate.name}]]</span>
+                        <i class="bi bi-chevron-down"></i>
+                    </div>
+                    <div th:id="'collapse' + ${cate.id}" class="collapse" th:classappend="${state.first} ? 'show'">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0 align-middle table-sm">
+                                <thead class="table-light">
+                                    <tr class="text-center small">
+                                        <th style="width: 80px;">Mã</th>
+                                        <th style="width: 70px;">Ảnh</th>
+                                        <th class="text-start">Tên sản phẩm</th>
+                                        <th style="width: 150px;">Giá bán</th>
+                                        <th style="width: 120px;">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="p : ${items}" th:if="${p.category.id == cate.id}" class="text-center">
+                                        <td class="text-muted" th:text="${p.id}"></td>
+                                        <td><img th:src="@{|/images/${p.image}|}" class="rounded border" style="height: 35px; width: 35px; object-fit: cover;"></td>
+                                        <td class="text-start fw-bold small" th:text="${p.name}"></td>
+                                        <td class="text-danger fw-bold small">[[${#numbers.formatDecimal(p.price, 0, 'COMMA', 0, 'POINT')}]] ₫</td>
+                                        <td>
+                                            <a th:href="@{|/admin/product/edit/${p.id}|}" class="btn btn-sm btn-outline-info border-0"><i class="bi bi-pencil-square"></i></a> 
+                                            <a th:href="@{|/admin/product/delete/${p.id}|}" class="btn btn-sm btn-outline-danger border-0" onclick="return confirm('Bạn chắc chắn muốn xóa?')"><i class="bi bi-trash"></i></a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

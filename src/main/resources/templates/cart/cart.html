@@ -1,0 +1,54 @@
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-danger text-white fw-bold">
+        <i class="bi bi-cart-check"></i> GIỎ HÀNG CỦA BẠN
+    </div>
+    <div class="card-body">
+        <div th:if="${session.cart == null or session.cart.count == 0}" class="text-center py-4">
+            <h5 class="text-muted">Chưa có sản phẩm nào!</h5>
+            <a href="/home/index" class="btn btn-warning mt-2">Tiếp tục mua sắm</a>
+        </div>
+
+        <table th:if="${session.cart != null and session.cart.count > 0}" class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Sản phẩm</th>
+                    <th>Giá</th>
+                    <th style="width: 120px;">Số lượng</th>
+                    <th>Thành tiền</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="item : ${session.cart.items}">
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <img th:src="@{|/images/${item.image}|}" class="rounded me-2" style="width: 50px; height: 50px; object-fit: cover;">
+                            <span class="fw-bold">[[${item.name}]]</span>
+                        </div>
+                    </td>
+                    <td>[[${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')}]]</td>
+                    <td>
+                        <form action="/cart/update" method="post" class="d-flex">
+                            <input type="hidden" name="id" th:value="${item.id}">
+                            <input type="number" name="qty" th:value="${item.qty}" min="1" onchange="this.form.submit()" class="form-control form-control-sm text-center">
+                        </form>
+                    </td>
+                    <td class="text-danger fw-bold">[[${#numbers.formatDecimal(item.price * item.qty, 0, 'COMMA', 0, 'POINT')}]]</td>
+                    <td>
+                        <a th:href="@{|/cart/remove/${item.id}|}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot class="fw-bold">
+                <tr>
+                    <td colspan="3" class="text-end text-uppercase">Tổng cộng:</td>
+                    <td colspan="2" class="text-danger fs-5">[[${#numbers.formatDecimal(session.cart.amount, 0, 'COMMA', 0, 'POINT')}]] ₫</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    <div class="card-footer bg-white border-0 d-flex justify-content-between pt-3" th:if="${session.cart != null and session.cart.count > 0}">
+        <a href="/cart/clear" class="btn btn-outline-danger">Xóa sạch</a>
+        <a href="/order/checkout" class="btn btn-success px-4">Thanh toán <i class="bi bi-arrow-right"></i></a>
+    </div>
+</div>

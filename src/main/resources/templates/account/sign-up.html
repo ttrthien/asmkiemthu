@@ -1,0 +1,40 @@
+<div class="card shadow-sm">
+    <div class="card-header bg-success text-white fw-bold">
+        ĐĂNG KÝ TÀI KHOẢN
+    </div>
+    <div class="card-body">
+        <div th:if="${message != null}" class="alert alert-warning">[[${message}]]</div>
+
+        <form th:action="@{/account/sign-up}" method="post" th:object="${item}">
+            
+            <div class="mb-3">
+                <label class="form-label">Tên đăng nhập</label>
+                <input type="text" th:field="*{username}" class="form-control" placeholder="Nhập username">
+                <small th:errors="*{username}" class="text-danger fst-italic"></small>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Mật khẩu</label>
+                <input type="password" th:field="*{password}" class="form-control" placeholder="Nhập mật khẩu">
+                <small th:errors="*{password}" class="text-danger fst-italic"></small>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Họ và tên</label>
+                <input type="text" th:field="*{fullname}" class="form-control" placeholder="Nhập họ tên">
+                <small th:errors="*{fullname}" class="text-danger fst-italic"></small>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" th:field="*{email}" class="form-control" placeholder="Nhập email">
+                <small th:errors="*{email}" class="text-danger fst-italic"></small>
+            </div>
+
+            <button class="btn btn-success w-100">Đăng Ký</button>
+        </form>
+    </div>
+    <div class="card-footer text-center">
+        Đã có tài khoản? <a href="/auth/login">Đăng nhập</a>
+    </div>
+</div>

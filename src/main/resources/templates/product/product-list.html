@@ -1,0 +1,94 @@
+<div class="container-fluid p-0">
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-3">
+            <form th:action="@{/home/index}" method="get" class="row g-2 align-items-center">
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                        <input type="text" name="keywords" class="form-control border-start-0 ps-0" 
+                               placeholder="Tìm tên giày..." th:value="${param.keywords}">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <select name="cid" class="form-select" onchange="this.form.submit()">
+                        <option value="">Tất cả hãng</option>
+                        <option th:each="c : ${categories}" th:value="${c.id}" 
+                                th:text="${c.name}" th:selected="${param.cid == c.id}"></option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="sort" class="form-select" onchange="this.form.submit()">
+                        <option value="">Sắp xếp mặc định</option>
+                        <option value="price-asc" th:selected="${param.sort == 'price-asc'}">Giá: Thấp đến Cao</option>
+                        <option value="price-desc" th:selected="${param.sort == 'price-desc'}">Giá: Cao đến Thấp</option>
+                        <option value="top-selling" th:selected="${param.sort == 'top-selling'}">Bán chạy nhất</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-grid">
+                    <button type="submit" class="btn btn-primary fw-bold">LỌC</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-bottom fw-bold text-uppercase d-flex justify-content-between align-items-center py-3">
+            <span><i class="bi bi-grid-3x3-gap-fill me-2 text-primary"></i>Kết quả hiển thị</span>
+            <span class="badge bg-primary rounded-pill" th:if="${page != null}">
+                [[${page.totalElements}]] Sản phẩm
+            </span>
+        </div>
+
+        <div class="card-body">
+            <div class="row">
+                <div th:each="p : ${page.content}" class="col-6 col-md-3 mb-4">
+                    <div class="card h-100 product-card border-0 shadow-sm position-relative overflow-hidden">
+                        <a th:href="@{|/product/detail/${p.id}|}">
+                            <img th:src="@{|/images/${p.image}|}" 
+                                 onerror="this.onerror=null; this.src='/images/default.png';"
+                                 class="card-img-top" style="height: 220px; object-fit: cover;">
+                        </a>
+                        <div class="card-body text-center p-2">
+                            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">[[${p.category.name}]]</small>
+                            <h6 class="card-title text-truncate mb-1">
+                                <a th:href="@{|/product/detail/${p.id}|}" class="text-decoration-none text-dark fw-bold small">
+                                    [[${p.name}]]
+                                </a>
+                            </h6>
+                            <div class="text-danger fw-bold">
+                                [[${#numbers.formatDecimal(p.price, 0, 'COMMA', 0, 'POINT')}]] ₫
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white border-0 p-2 pt-0">
+                            <button th:onclick="'addToCart(' + ${p.id} + ')'" class="btn btn-dark w-100 btn-sm shadow-sm">
+                                <i class="bi bi-cart-plus me-1"></i> MUA NGAY
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4" th:if="${page.totalPages > 1}">
+                <div class="col-12 text-center">
+                    <nav>
+                        <ul class="pagination pagination-sm justify-content-center">
+                            <li class="page-item" th:classappend="${page.first} ? 'disabled'">
+                                <a class="page-link" th:href="@{/home/index(p=0, keywords=${param.keywords}, cid=${param.cid}, sort=${param.sort})}">Đầu</a>
+                            </li>
+                            <li class="page-item" th:classappend="${page.first} ? 'disabled'">
+                                <a class="page-link" th:href="@{/home/index(p=${page.number - 1}, keywords=${param.keywords}, cid=${param.cid}, sort=${param.sort})}"><i class="bi bi-chevron-left"></i></a>
+                            </li>
+                            <li class="page-item active"><span class="page-link">[[${page.number + 1}]]</span></li>
+                            <li class="page-item" th:classappend="${page.last} ? 'disabled'">
+                                <a class="page-link" th:href="@{/home/index(p=${page.number + 1}, keywords=${param.keywords}, cid=${param.cid}, sort=${param.sort})}"><i class="bi bi-chevron-right"></i></a>
+                            </li>
+                            <li class="page-item" th:classappend="${page.last} ? 'disabled'">
+                                <a class="page-link" th:href="@{/home/index(p=${page.totalPages - 1}, keywords=${param.keywords}, cid=${param.cid}, sort=${param.sort})}">Cuối</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

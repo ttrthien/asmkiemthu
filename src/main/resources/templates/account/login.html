@@ -1,0 +1,31 @@
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-primary text-white fw-bold">ĐĂNG NHẬP</div>
+    <div class="card-body">
+        <div th:if="${message != null}" class="alert alert-danger" role="alert">
+            [[${message}]]
+        </div>
+
+        <form action="/auth/login" method="post">
+            <div class="mb-3">
+                <label class="form-label fw-bold">Tên đăng nhập</label> 
+                <input name="username" th:value="${username}" class="form-control" placeholder="Nhập username">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Mật khẩu</label> 
+                <input name="password" type="password" class="form-control" placeholder="Nhập password">
+            </div>
+
+            <div class="mb-3 form-check">
+                <input type="checkbox" name="remember" class="form-check-input" id="rememberCheck"> 
+                <label class="form-check-label" for="rememberCheck">Ghi nhớ tài khoản?</label>
+            </div>
+
+            <button class="btn btn-primary w-100 fw-bold">Đăng Nhập</button>
+        </form>
+    </div>
+    <div class="card-footer text-center bg-white">
+        <span>Bạn chưa có tài khoản?</span> 
+        <a href="/account/sign-up" class="text-decoration-none fw-bold">Đăng ký ngay</a>
+    </div>
+</div>
