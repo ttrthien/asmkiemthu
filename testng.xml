@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="ASM_Testing_Suite">
+    
+    <test name="Login_and_Authentication_Test">
+        <classes>
+            <class name="poly.com.asm.testlogin_authen.LoginTest"/>
+        </classes>
+    </test>
+
+</suite>
