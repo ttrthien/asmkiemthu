@@ -28,6 +28,9 @@ public class Order {
 	@OneToMany(mappedBy = "order")
 	private List<OrderDetail> orderDetails;
 
-	@Transient
-	Integer status = 0;
+	@Column(name = "status")
+	private Integer status = 0; 
+
+	@Column(name = "Paymentmethod")
+	private String paymentMethod;
 }
