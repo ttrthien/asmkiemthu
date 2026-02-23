@@ -19,6 +19,13 @@
                     <div class="col-sm-6">
                         <p><strong>Địa chỉ giao hàng:</strong> <span th:text="${order.address}"></span></p>
                     </div>
+                    <div class="col-sm-6">
+    <p><strong>Phương thức:</strong> <span th:text="${order.paymentMethod}"></span></p>
+    <p><strong>Trạng thái:</strong> 
+        <span th:if="${order.status == 0}" class="badge bg-warning text-dark">Chờ thanh toán</span>
+        <span th:if="${order.status == 1}" class="badge bg-success">Đã thanh toán (VNPAY)</span>
+    </p>
+</div>
                 </div>
 
                 <table class="table table-bordered">

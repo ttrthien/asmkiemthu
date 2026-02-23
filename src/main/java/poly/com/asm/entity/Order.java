@@ -10,27 +10,28 @@ import lombok.*;
 @Entity
 @Table(name = "Orders")
 public class Order {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "Createdate")
-	private Date createDate = new Date();
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "Createdate")
+    private Date createDate = new Date();
 
-	@NotBlank(message = "Địa chỉ nhận hàng không được để trống")
-	private String address;
+    @NotBlank(message = "Địa chỉ nhận hàng không được để trống")
+    private String address;
 
-	@ManyToOne
-	@JoinColumn(name = "Username")
-	private Account account;
+    @ManyToOne
+    @JoinColumn(name = "Username")
+    private Account account;
 
-	@OneToMany(mappedBy = "order")
-	private List<OrderDetail> orderDetails;
+    // Bổ sung CascadeType.ALL để tự động lưu/cập nhật OrderDetail
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL) 
+    private List<OrderDetail> orderDetails;
 
-	@Column(name = "status")
-	private Integer status = 0; 
+    @Column(name = "status")
+    private Integer status = 0; 
 
-	@Column(name = "Paymentmethod")
-	private String paymentMethod;
+    @Column(name = "Paymentmethod")
+    private String paymentMethod;
 }

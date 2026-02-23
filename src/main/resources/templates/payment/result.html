@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body class="container mt-5 text-center">
+    <div th:if="${result == 'success'}" class="alert alert-success">
+        <h2>Thanh toán thành công!</h2>
+    </div>
+    <div th:if="${result == 'failed'}" class="alert alert-danger">
+        <h2>Thanh toán thất bại!</h2>
+    </div>
+    <a href="/order/list" class="btn btn-primary">Xem đơn hàng</a>
+</body>
+</html>

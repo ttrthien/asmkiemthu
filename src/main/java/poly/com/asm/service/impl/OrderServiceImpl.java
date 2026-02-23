@@ -14,38 +14,33 @@ import poly.com.asm.service.OrderService;
 
 @Service
 public class OrderServiceImpl implements OrderService {
-	@Autowired
-	OrderDAO odao;
+    @Autowired OrderDAO odao;
+    @Autowired OrderDetailDAO ddao;
 
-	@Autowired
-	OrderDetailDAO ddao;
+    @Transactional
+    @Override
+    public Order create(Order order) {
+        return odao.save(order);
+    }
 
-	@Override
-	public List<Order> findAll() {
-		return odao.findAll();
-	}
+    @Transactional
+    @Override
+    public Order update(Order order) {
+        return odao.save(order);
+    }
 
-	@Transactional
-	@Override
-	public Order create(Order order) {
-		Order savedOrder = odao.save(order);
+    @Override
+    public Order findById(Long id) {
+        return odao.findById(id).orElse(null);
+    }
 
-		if (order.getOrderDetails() != null && !order.getOrderDetails().isEmpty()) {
-			for (OrderDetail detail : order.getOrderDetails()) {
-				detail.setOrder(savedOrder);
-				ddao.save(detail);
-			}
-		}
-		return savedOrder;
-	}
-
-	@Override
-	public Order findById(Long id) {
-		return odao.findById(id).orElse(null);
-	}
-
-	@Override
-	public List<Order> findByAccount(Account account) {
-		return odao.findByAccount(account);
-	}
+    @Override
+    public List<Order> findByAccount(Account account) {
+        return odao.findByAccount(account);
+    }
+    
+    @Override
+    public List<Order> findAll() {
+        return odao.findAll();
+    }
 }
