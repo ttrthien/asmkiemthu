@@ -98,7 +98,7 @@ public class ProductTest {
 			String dbUrl = "jdbc:sqlserver://localhost:1433;databaseName=ASM_BanGiay;encrypt=true;trustServerCertificate=true";
 			Connection conn = DriverManager.getConnection(dbUrl, "asmjava5", "123");
 			Statement stmt = conn.createStatement();
-			int rowsDeleted = stmt.executeUpdate("DELETE FROM Products WHERE name LIKE '[TEST] %'");
+			int rowsDeleted = stmt.executeUpdate("DELETE FROM Products WHERE name LIKE '%TEST%'");
 			System.out.println("Tuyệt vời! Đã dọn sạch " + rowsDeleted
 					+ " sản phẩm rác do test tạo ra. Dữ liệu thật vẫn an toàn!");
 			conn.close();
