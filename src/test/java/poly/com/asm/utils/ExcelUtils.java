@@ -41,4 +41,27 @@ public class ExcelUtils {
         fileOut.close();
         workbook.close();
     }
+    public static Object[][] getCartTableArray(String filePath, String sheetName) throws Exception {
+        FileInputStream excelFile = new FileInputStream(filePath);
+        Workbook workbook = new XSSFWorkbook(excelFile);
+        Sheet sheet = workbook.getSheet(sheetName);
+
+        int totalRows = sheet.getPhysicalNumberOfRows();
+        Object[][] tabArray = new Object[totalRows - 1][4];
+
+        DataFormatter formatter = new DataFormatter();
+
+        for (int i = 1; i < totalRows; i++) {
+            Row row = sheet.getRow(i);
+
+            tabArray[i-1][0] = formatter.formatCellValue(row.getCell(0)); // productName
+            tabArray[i-1][1] = formatter.formatCellValue(row.getCell(1)); // quantity
+            tabArray[i-1][2] = formatter.formatCellValue(row.getCell(2)); // expected
+            tabArray[i-1][3] = i;
+        }
+
+        workbook.close();
+        excelFile.close();
+        return tabArray;
+    }
 }
