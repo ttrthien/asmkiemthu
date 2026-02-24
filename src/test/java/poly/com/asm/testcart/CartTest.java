@@ -1,4 +1,4 @@
-package poly.com.asm.CartTest;
+package poly.com.asm.testcart;
 
 import java.time.Duration;
 
@@ -17,8 +17,6 @@ public class CartTest {
     WebDriver driver;
     WebDriverWait wait;
     String excelPath = "src/test/resources/TestCartData.xlsx";
-
-    // ================= SETUP =================
     @BeforeClass
     public void setup() {
 

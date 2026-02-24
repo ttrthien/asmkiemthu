@@ -18,41 +18,45 @@ import poly.com.asm.service.ProductService;
 
 @Controller
 public class HomeController {
-	@Autowired
-	ProductService productService;
+    @Autowired
+    ProductService productService;
 
-	@Autowired
-	CategoryService categoryService;
+    @Autowired
+    CategoryService categoryService;
 
-	@RequestMapping({ "/", "/home/index" })
-	public String index(Model model, @RequestParam("keywords") Optional<String> kw,
-			@RequestParam("cid") Optional<String> cid, @RequestParam("sort") Optional<String> sortType,
-			@RequestParam("p") Optional<Integer> p) {
+    @RequestMapping({ "/", "/home/index" })
+    public String index(Model model, 
+            @RequestParam("keywords") Optional<String> kw,
+            @RequestParam("cid") Optional<String> cid, 
+            @RequestParam("sort") Optional<String> sortType,
+            @RequestParam("p") Optional<Integer> p) {
 
-		String sortField = "price";
-		Direction direction = Direction.ASC;
-		String sType = sortType.orElse("");
+        String sType = sortType.orElse("");
+        String keyword = kw.orElse("");
+        String categoryId = cid.orElse("");
+        
+        Page<Product> page;
 
-		if (sType.equals("price-desc")) {
-			direction = Direction.DESC;
-		}
+        if (sType.equals("top-selling")) {
+            Pageable pageable = PageRequest.of(p.orElse(0), 8);
+            page = productService.findTopSelling(pageable);
+        } else {
+            String sortField = "price";
+            Direction direction = Direction.ASC;
+            
+            if (sType.equals("price-desc")) {
+                direction = Direction.DESC;
+            }
+            
+            Pageable pageable = PageRequest.of(p.orElse(0), 8, Sort.by(direction, sortField));
+            
+            page = productService.filterProducts(categoryId, keyword, pageable);
+        }
 
-		Pageable pageable = PageRequest.of(p.orElse(0), 8, Sort.by(direction, sortField));
-		Page<Product> page;
-
-		if (sType.equals("top-selling")) {
-			page = productService.findTopSelling(pageable);
-		} else if (cid.isPresent() && !cid.get().isEmpty()) {
-			page = productService.findByCategoryId(cid.get(), pageable);
-		} else if (kw.isPresent() && !kw.get().isEmpty()) {
-			page = productService.findByKeywords(kw.get(), pageable);
-		} else {
-			page = productService.findAll(pageable);
-		}
-
-		model.addAttribute("categories", categoryService.findAll());
-		model.addAttribute("page", page);
-		model.addAttribute("view", "product/product-list.html");
-		return "layout/index";
-	}
+        model.addAttribute("categories", categoryService.findAll());
+        model.addAttribute("page", page);
+        model.addAttribute("view", "product/product-list.html");
+        
+        return "layout/index";
+    }
 }

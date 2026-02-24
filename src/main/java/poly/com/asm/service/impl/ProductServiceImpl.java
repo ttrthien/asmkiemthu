@@ -75,4 +75,9 @@ public class ProductServiceImpl implements ProductService {
     public Page<Product> findByPriceRange(Double min, Double max, Pageable pageable) {
         return pdao.findByPriceBetween(min, max, pageable);
     }
+    
+    @Override
+    public Page<Product> filterProducts(String cid, String kw, Pageable pageable) {
+        return pdao.filterProducts(cid, kw, pageable);
+    }
 }

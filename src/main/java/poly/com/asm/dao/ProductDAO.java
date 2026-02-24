@@ -22,4 +22,9 @@ public interface ProductDAO extends JpaRepository<Product, Integer> {
 
 	@Query("SELECT p FROM Product p LEFT JOIN p.orderDetails od GROUP BY p ORDER BY COUNT(od) DESC")
 	Page<Product> findTopSelling(Pageable pageable);
+	
+	@Query("SELECT p FROM Product p WHERE " +
+		       "(:cid IS NULL OR :cid = '' OR p.category.id = :cid) AND " +
+		       "(:kw IS NULL OR :kw = '' OR p.name LIKE %:kw%)")
+		Page<Product> filterProducts(String cid, String kw, Pageable pageable);
 }

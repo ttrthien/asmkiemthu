@@ -18,6 +18,8 @@ public interface ProductService {
     Page<Product> findByPriceRange(Double min, Double max, Pageable pageable);
 
     Page<Product> findTopSelling(Pageable pageable);
+    
+    Page<Product> filterProducts(String cid, String kw, Pageable pageable);
 
     List<Product> Layspduoi500(Double price);
     Product create(Product product);
