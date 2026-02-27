@@ -1,108 +1,132 @@
 package poly.com.asm.testsearch_filter;
 
+import java.io.File;
 import java.time.Duration;
-import java.util.List;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.io.FileHandler;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.annotations.*;
 import poly.com.asm.utils.ExcelUtilsSearch;
+import java.util.List;
 
 public class SearchFilterTest {
     WebDriver driver;
-    String excelPath = "src/test/resources/TestSearchFilterData.xlsx"; 
-    String sheetName = "test_case"; 
+    String excelPath = "src/test/resources/TestSearchData.xlsx";
+    WebDriverWait wait;
 
     @BeforeMethod
     public void setup() {
         driver = new ChromeDriver();
-        driver.get("http://localhost:8080/home/index"); 
+        driver.get("http://localhost:8080/home/index");
         driver.manage().window().maximize();
+        wait = new WebDriverWait(driver, Duration.ofSeconds(15));
     }
 
-    @DataProvider(name = "searchFilterData")
+    @DataProvider(name = "searchData")
     public Object[][] dataProvider() throws Exception {
-        return ExcelUtilsSearch.getSearchData(excelPath, sheetName);
+        return ExcelUtilsSearch.getTableArray(excelPath, "Sheet1");
     }
 
-    @Test(dataProvider = "searchFilterData")
-    public void testSearchAndFilter(String keyword, String category, String price, String expected, Object rowIdx) throws Exception {
-        String actualResult = "";
+    @Test(dataProvider = "searchData")
+    public void testSearch(String scenario, String keywords, String category, String sort, String expectedMin, String expectedContains, Object rowIdx) throws Exception {
+        String actualCount = "0";
         String status = "FAIL";
+        String detail = "";
         int rowNum = Integer.parseInt(rowIdx.toString());
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        JavascriptExecutor js = (JavascriptExecutor) driver;
+        long startTime = System.currentTimeMillis();
 
         try {
-            // 1. Logic Tìm kiếm
-            if (!keyword.isEmpty()) {
-                WebElement txtSearch = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//input[@placeholder='Tìm tên giày...']")));
-                txtSearch.clear();
-                txtSearch.sendKeys(keyword);
-                
-                WebElement btnLoc = driver.findElement(By.xpath("//button[contains(text(),'LỌC')]"));
-                btnLoc.click();
-                Thread.sleep(1000);
+            if (!keywords.trim().isEmpty()) {
+                WebElement inputKeywords = wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("keywords")));
+                inputKeywords.clear();
+                inputKeywords.sendKeys(keywords.trim());
             }
 
-            // 2. Logic Danh mục (Sửa lỗi Timeout)
-            if (!category.isEmpty()) {
-                // XPath tìm thẻ a chứa text danh mục (Adidas, Nike...) trong phần sidebar
-                WebElement cateLink = wait.until(ExpectedConditions.presenceOfElementLocated(
-                        By.xpath("//a[contains(text(),'" + category + "')] | //span[contains(text(),'" + category + "')]")));
-                
-                // Cuộn tới phần tử và Click bằng JS để tránh bị che khuất
-                js.executeScript("arguments[0].scrollIntoView(true);", cateLink);
-                Thread.sleep(500);
-                js.executeScript("arguments[0].click();", cateLink);
+            if (!category.trim().isEmpty()) {
+                WebElement selectCategory = wait.until(ExpectedConditions.elementToBeClickable(By.name("cid")));
+                Select selCat = new Select(selectCategory);
+                selCat.selectByValue(category.trim());
             }
 
-            // 3. Logic Dropdown Hãng
-            if (!price.isEmpty()) {
-                WebElement dropdown = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//select")));
-                dropdown.sendKeys(price); 
-                Thread.sleep(1000);
-            }
-
-            // Chờ kết quả hiển thị
-            Thread.sleep(1500);
-
-            // 4. Verify kết quả: Đếm các khung card sản phẩm
-            List<WebElement> products = driver.findElements(By.xpath("//div[contains(@class, 'card')] | //div[@class='product-item']")); 
-            int count = products.size();
-
-            if (expected.equalsIgnoreCase("Found") || expected.equalsIgnoreCase("Filtered")) {
-                if (count > 0) {
-                    status = "PASS";
-                    actualResult = "Thành công: " + count + " SP";
-                } else {
-                    actualResult = "Lỗi: Không tìm thấy sản phẩm";
+            if (!sort.trim().isEmpty()) {
+                try {
+                    WebElement selectSort = wait.until(ExpectedConditions.elementToBeClickable(By.name("sort")));
+                    Select selSort = new Select(selectSort);
+                    selSort.selectByValue(sort.trim());
+                } catch (Exception e) {
+                    detail += "Không tìm thấy select sort hoặc value không hợp lệ: " + sort + ". ";
                 }
-            } else if (expected.equalsIgnoreCase("No Result")) {
-                if (count == 0) {
-                    status = "PASS";
-                    actualResult = "Đúng: 0 kết quả";
-                } else {
-                    actualResult = "Lỗi: Vẫn hiển thị " + count + " SP";
+            }
+
+            WebElement btnSubmit = wait.until(ExpectedConditions.elementToBeClickable(
+                By.xpath("//button[@type='submit'] | //button[contains(text(),'Tìm')] | //button[contains(@class,'search')]")
+            ));
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", btnSubmit);
+
+            int expMin = Integer.parseInt(expectedMin);
+
+            if (expMin > 0) {
+                By productLocator = By.cssSelector(".product-item, .card, .product-card, .item, .col-md-3, .col-3, .shoe-item"); // Linh hoạt
+                wait.until(ExpectedConditions.presenceOfElementLocated(productLocator));
+
+                List<WebElement> products = driver.findElements(productLocator);
+                int count = products.size();
+                actualCount = String.valueOf(count);
+
+                boolean containsMatch = true;
+                if (!expectedContains.trim().isEmpty()) {
+                    containsMatch = products.stream()
+                        .anyMatch(p -> p.getText().toLowerCase().contains(expectedContains.toLowerCase()));
                 }
-            } else { 
-                status = "PASS";
-                actualResult = "Hiển thị: " + count + " SP";
+
+                if (count >= expMin && containsMatch) {
+                    status = "PASS";
+                    detail = "Tìm thấy " + count + " sản phẩm phù hợp";
+                } else {
+                    detail = "Số lượng hoặc nội dung không khớp: " + count + " < " + expMin + " hoặc thiếu '" + expectedContains + "'";
+                }
+            } else {
+                try {
+                    WebElement noResult = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                        By.xpath("//*[contains(text(),'Không tìm thấy') or contains(text(),'No products') or contains(@class,'no-result')]")
+                    ));
+                    if (noResult.isDisplayed()) {
+                        actualCount = "0";
+                        status = "PASS";
+                        detail = "Không tìm thấy sản phẩm (như mong đợi)";
+                    }
+                } catch (Exception e) {
+                    detail = "Không hiển thị thông báo không tìm thấy khi expected 0";
+                }
             }
 
         } catch (Exception e) {
-            actualResult = "Lỗi hệ thống: " + e.getMessage();
+            actualCount = "0";
+            detail = "LỖI: " + e.getClass().getSimpleName() + " - " + e.getMessage() + " | URL: " + driver.getCurrentUrl();
+            try {
+                File srcFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+                FileHandler.copy(srcFile, new File("screenshots/fail_" + rowNum + "_" + System.currentTimeMillis() + ".png"));
+                detail += " | Đã chụp ảnh lỗi";
+            } catch (Exception ignored) {}
         } finally {
-            ExcelUtilsSearch.setSearchResults(excelPath, sheetName, actualResult, status, rowNum);
+            long duration = System.currentTimeMillis() - startTime;
+            detail += " | Thời gian: " + duration + "ms";
+            ExcelUtilsSearch.setCellData(excelPath, actualCount, status, detail, rowNum);
         }
     }
 
     @AfterMethod
     public void tearDown() {
-        if (driver != null) driver.quit();
+        if (driver != null) {
+            driver.quit();
+        }
     }
 }

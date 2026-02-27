@@ -2,60 +2,55 @@ package poly.com.asm.utils;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class ExcelUtilsSearch {
     private static Workbook workbook;
     private static Sheet sheet;
-
-    public static Object[][] getSearchData(String filePath, String sheetName) throws Exception {
+    
+    public static Object[][] getTableArray(String filePath, String sheetName) throws Exception {
         FileInputStream excelFile = new FileInputStream(filePath);
         workbook = new XSSFWorkbook(excelFile);
         sheet = workbook.getSheet(sheetName);
         
-        int totalRows = sheet.getLastRowNum(); // Sử dụng LastRowNum để chính xác hơn
-        List<Object[]> dataList = new ArrayList<>();
-
-        for (int i = 1; i <= totalRows; i++) {
-            Row row = sheet.getRow(i);
-            // Kiểm tra: Nếu dòng rỗng hoặc ô STT (cột 0) rỗng thì bỏ qua
-            if (row == null || getCellValue(row.getCell(0)).isEmpty()) {
-                continue;
-            }
-            
-            Object[] rowData = new Object[5];
-            rowData[0] = getCellValue(row.getCell(1)); // Keyword
-            rowData[1] = getCellValue(row.getCell(2)); // Category
-            rowData[2] = getCellValue(row.getCell(3)); // PriceRange
-            rowData[3] = getCellValue(row.getCell(4)); // Expected
-            rowData[4] = i; // Row Index để ghi kết quả
-            dataList.add(rowData);
-        }
-        workbook.close();
+        int totalRows = sheet.getPhysicalNumberOfRows();
         
-        // Chuyển List sang Object[][] để DataProvider sử dụng
-        return dataList.toArray(new Object[0][0]);
+        Object[][] tabArray = new Object[totalRows - 1][7];
+        for (int i = 1; i < totalRows; i++) {
+            Row row = sheet.getRow(i);
+            tabArray[i-1][0] = getCellValue(row.getCell(1)); // Scenario
+            tabArray[i-1][1] = getCellValue(row.getCell(2)); // Keywords
+            tabArray[i-1][2] = getCellValue(row.getCell(3)); // Category
+            tabArray[i-1][3] = getCellValue(row.getCell(4)); // Sort
+            tabArray[i-1][4] = getCellValue(row.getCell(5)); // ExpectedMin
+            tabArray[i-1][5] = getCellValue(row.getCell(6)); // ExpectedContains
+            tabArray[i-1][6] = i; // rowIdx
+        }
+        return tabArray;
     }
-
+    
     private static String getCellValue(Cell cell) {
         if (cell == null) return "";
-        cell.setCellType(CellType.STRING); // Ép kiểu về String để tránh lỗi định dạng
-        return cell.getStringCellValue().trim();
+        switch (cell.getCellType()) {
+            case NUMERIC:
+                return String.valueOf((int) cell.getNumericCellValue());
+            case STRING:
+                return cell.getStringCellValue();
+            default:
+                return "";
+        }
     }
-
-    public static void setSearchResults(String filePath, String sheetName, String actual, String status, int rowNum) throws Exception {
+    
+    public static void setCellData(String filePath, String actualCount, String status, String detail, int rowNum) throws Exception {
         FileInputStream fileIn = new FileInputStream(filePath);
         workbook = new XSSFWorkbook(fileIn);
-        sheet = workbook.getSheet(sheetName);
-        
+        sheet = workbook.getSheetAt(0);
         Row row = sheet.getRow(rowNum);
-        if (row == null) row = sheet.createRow(rowNum);
         
-        row.createCell(6).setCellValue(actual); 
-        row.createCell(7).setCellValue(status); 
+        row.createCell(7).setCellValue(actualCount); // ActualCount
+        row.createCell(8).setCellValue(status); // Status
+        row.createCell(9).setCellValue(detail); // Detail
         
         FileOutputStream fileOut = new FileOutputStream(filePath);
         workbook.write(fileOut);
